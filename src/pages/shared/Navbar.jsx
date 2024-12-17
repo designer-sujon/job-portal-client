@@ -16,11 +16,11 @@ const Navbar = () => {
       </li>
       <li>
         {" "}
-        <NavLink to="/">Home</NavLink>{" "}
+        <NavLink to="/myJobApplications">My Application</NavLink>{" "}
       </li>
       <li>
         {" "}
-        <NavLink to="/">Home</NavLink>{" "}
+        <NavLink to="/addJob">Add Job</NavLink>{" "}
       </li>
     </>
   );
