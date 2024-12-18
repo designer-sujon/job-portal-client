@@ -1,11 +1,51 @@
+import { object } from "motion/react-client";
 import React from "react";
+import Swal from "sweetalert2";
+import useAuth from "../../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
 
 const AddJob = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const handleAddJob = (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+
+    const initialData = Object.fromEntries(formData.entries());
+    console.log(initialData);
+    const { min, max, currency, ...newJob } = initialData;
+    console.log(newJob);
+    newJob.salaryRange = { min, max, currency };
+    newJob.requirements = newJob.requirements.split("\n");
+    newJob.responsibilities = newJob.responsibilities.split("\n");
+    console.log(newJob);
+
+    fetch("http://localhost:5000/jobs", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(newJob),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.insertedId) {
+          Swal.fire({
+            position: "top-end",
+            icon: "success",
+            title: "Job hasbeen added",
+            showConfirmButton: false,
+            timer: 1500,
+          });
+          navigate("/myPostedJobs");
+        }
+      });
+  };
   return (
     <div>
       <h2 className="text-3xl">Post a New Job</h2>
       <div>
-        <form className="card-body">
+        <form onSubmit={handleAddJob} className="card-body">
           {/* job title */}
           <div className="form-control">
             <label className="label">
@@ -38,10 +78,11 @@ const AddJob = () => {
               <label className="label">
                 <span className="label-text">Job Type</span>
               </label>
-              <select className="select select-ghost w-full max-w-xs">
-                <option disabled selected>
-                  Pick a Job Type
-                </option>
+              <select
+                defaultValue="Pick a Job Type"
+                className="select select-ghost w-full max-w-xs"
+              >
+                <option disabled>Pick a Job Type</option>
                 <option>Full Time</option>
                 <option>Intern</option>
                 <option>Part Time</option>
@@ -52,10 +93,11 @@ const AddJob = () => {
               <label className="label">
                 <span className="label-text">Job Field</span>
               </label>
-              <select className="select select-ghost w-full max-w-xs">
-                <option disabled selected>
-                  Pick a Job Field
-                </option>
+              <select
+                defaultValue="Pick a Job Field"
+                className="select select-ghost w-full max-w-xs"
+              >
+                <option disabled>Pick a Job Field</option>
                 <option>Engineering</option>
                 <option>Marketing</option>
                 <option>Finance</option>
@@ -72,7 +114,7 @@ const AddJob = () => {
               </label>
               <input
                 type="text"
-                name="Min"
+                name="min"
                 placeholder="Min Salary"
                 className="input input-bordered"
                 required
@@ -81,17 +123,19 @@ const AddJob = () => {
             <div className="form-control">
               <input
                 type="text"
-                name="Max"
+                name="max"
                 placeholder="Max Salary"
                 className="input input-bordered"
                 required
               />
             </div>
             <div className="form-control">
-              <select className="select select-ghost w-full max-w-xs">
-                <option disabled selected>
-                  Pick a Currency
-                </option>
+              <select
+                defaultValue="Pick a Currency"
+                name="currency"
+                className="select select-ghost w-full max-w-xs"
+              >
+                <option disabled>Pick a Currency</option>
                 <option>BDT</option>
                 <option>USD</option>
                 <option>CAD</option>
@@ -150,6 +194,7 @@ const AddJob = () => {
               <span className="label-text">HR Name</span>
             </label>
             <input
+              defaultValue={user?.displayName}
               type="text"
               name="hr_name"
               placeholder="HR Name"
@@ -157,9 +202,49 @@ const AddJob = () => {
               required
             />
           </div>
+          {/* HR Email */}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">HR Email</span>
+            </label>
+            <input
+              defaultValue={user?.email}
+              type="text"
+              name="hr_email"
+              placeholder="HR Email"
+              className="input input-bordered"
+              required
+            />
+          </div>
+          {/*Application Deadline */}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Deadline</span>
+            </label>
+            <input
+              type="date"
+              name="applicationDeadline"
+              placeholder="Deadline"
+              className="input input-bordered"
+              required
+            />
+          </div>
+          {/* Company logo */}
+          <div className="form-control">
+            <label className="label">
+              <span className="label-text">Company Logo URL</span>
+            </label>
+            <input
+              type="text"
+              name="company_logo"
+              placeholder="Company Logo URL"
+              className="input input-bordered"
+              required
+            />
+          </div>
           {/* submit */}
           <div className="form-control mt-6">
-            <button className="btn btn-primary">Login</button>
+            <button className="btn btn-primary">Submit</button>
           </div>
         </form>
       </div>
